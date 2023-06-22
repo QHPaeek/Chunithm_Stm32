@@ -1,0 +1,2 @@
+../Drivers/CMSIS/Include/core_cm4.h:1863:26:NVIC_EncodePriority.constprop	0	static
+../Core/Src/dma.c:39:6:MX_DMA_Init	16	static
