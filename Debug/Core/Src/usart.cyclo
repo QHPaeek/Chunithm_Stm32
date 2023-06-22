@@ -1,0 +1,4 @@
+usart.c:32:1:__io_putchar	1
+usart.c:43:6:MX_USART1_UART_Init	2
+usart.c:71:6:HAL_UART_MspInit	2
+usart.c:101:6:HAL_UART_MspDeInit	2
