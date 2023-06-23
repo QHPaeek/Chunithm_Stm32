@@ -45,7 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+uint8_t rxBuffer[256];
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -61,6 +61,13 @@ const osThreadAttr_t MPR121A_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for serial_cmd */
+osThreadId_t serial_cmdHandle;
+const osThreadAttr_t serial_cmd_attributes = {
+  .name = "serial_cmd",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -69,6 +76,7 @@ const osThreadAttr_t MPR121A_attributes = {
 
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
+void StartTask03(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -80,7 +88,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+	TaskHandle_t myTaskHandle;
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -105,6 +113,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of MPR121A */
   MPR121AHandle = osThreadNew(StartTask02, NULL, &MPR121A_attributes);
+
+  /* creation of serial_cmd */
+  serial_cmdHandle = osThreadNew(StartTask03, NULL, &serial_cmd_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -161,6 +172,54 @@ void StartTask02(void *argument)
 
   }
   /* USER CODE END StartTask02 */
+}
+
+/* USER CODE BEGIN Header_StartTask03 */
+/**
+* @brief Function implementing the serial_cmd thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask03 */
+void StartTask03(void *argument)
+{
+  /* USER CODE BEGIN StartTask03 */
+    TaskHandle_t notificationTaskHandle = NULL;
+
+    // ...
+
+    // 在任务中等待通知
+    while (1)
+    {
+        // 等待通知
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        // 执行任务操作
+
+        //重新开始CDC的接收
+        HAL_PCD_EP_Receive(&hpcd_USB_FS, CDC_EPIN_ADDR, rxBuffer, sizeof(rxBuffer));
+        uint8_t receivedLength = sizeof(rxBuffer) - hpcd_USB_FS.IN_ep[CDC_EPIN_ADDR & 0x7F].xfer_count;
+        switch (sliderserial_readreq())
+        {
+                    case SLIDER_CMD_SET_LED:
+                      slider_set_led();
+                      break;
+                    case SLIDER_CMD_AUTO_SCAN_START:
+                      slider_scan_start();
+                      break;
+                    case SLIDER_CMD_AUTO_SCAN_STOP:
+                      slider_scan_stop();
+                      break;
+                    case SLIDER_CMD_RESET:
+                      slider_reset();
+                      break;
+                    case SLIDER_CMD_GET_BOARD_INFO:
+                      slider_get_board_info();
+                      break;
+                    default:
+                      slider_scan();
+    }
+  /* USER CODE END StartTask03 */
 }
 
 /* Private application code --------------------------------------------------*/
