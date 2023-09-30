@@ -1,0 +1,8 @@
+freertos.c:144:6:MX_FREERTOS_Init	1
+freertos.c:204:6:USB_task	7
+freertos.c:237:6:MPR121_1	1
+freertos.c:256:6:MPR121_2	1
+freertos.c:275:6:MPR121_3	1
+freertos.c:294:6:WS2812_task	1
+freertos.c:312:6:IR_task	1
+freertos.c:330:6:CardReader	1

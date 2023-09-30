@@ -1,0 +1,12 @@
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:371:22:LL_I2C_Enable	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:382:22:LL_I2C_Disable	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:413:22:LL_I2C_ConfigFilters	24	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:644:22:LL_I2C_SetOwnAddress1	24	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:836:22:LL_I2C_ConfigSpeed	32	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:885:22:LL_I2C_SetMode	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_i2c.h:1661:22:LL_I2C_AcknowledgeNextData	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h:1409:22:LL_APB1_GRP1_ForceReset	16	static
+../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_bus.h:1481:22:LL_APB1_GRP1_ReleaseReset	16	static
+../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_i2c.c:94:10:LL_I2C_DeInit	24	static
+../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_i2c.c:144:10:LL_I2C_Init	32	static
+../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_i2c.c:217:6:LL_I2C_StructInit	16	static
