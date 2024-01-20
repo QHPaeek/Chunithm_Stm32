@@ -1,0 +1,15 @@
+usbd_def.h:417:26:SWAPBYTE	1
+usbd_ctlreq.c:102:20:USBD_StdDevReq	12
+usbd_ctlreq.c:165:20:USBD_StdItfReq	12
+usbd_ctlreq.c:237:20:USBD_StdEPReq	41
+usbd_ctlreq.c:426:13:USBD_GetDescriptor	24
+usbd_ctlreq.c:682:13:USBD_SetAddress	6
+usbd_ctlreq.c:723:27:USBD_SetConfig	9
+usbd_ctlreq.c:814:13:USBD_GetConfig	5
+usbd_ctlreq.c:848:13:USBD_GetStatus	4
+usbd_ctlreq.c:889:13:USBD_SetFeature	3
+usbd_ctlreq.c:915:13:USBD_ClrFeature	3
+usbd_ctlreq.c:943:6:USBD_ParseSetupRequest	1
+usbd_ctlreq.c:972:6:USBD_CtlError	1
+usbd_ctlreq.c:989:6:USBD_GetString	3
+usbd_ctlreq.c:1025:16:USBD_GetLen	2

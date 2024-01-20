@@ -1,0 +1,3 @@
+../Core/Src/cy8cmbr3116.c:34:6:key_scan	48	static
+../Core/Src/cy8cmbr3116.c:52:6:Sensor_softRST	32	static
+../Core/Src/cy8cmbr3116.c:58:6:Sensor_Cfg	48	static
