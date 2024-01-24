@@ -25,6 +25,8 @@
 /* USER CODE BEGIN INCLUDE */
 #include "serial.h"
 #include "slider.h"
+#include "LED.h"
+#include "dma.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,7 +35,10 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint8_t led_flag = 0;
+uint8_t led_flag_len = 0;
+//uint8_t Buffer[256] = {0};
+uint8_t package_flag = 0;
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -423,39 +428,13 @@ static int8_t CDC_Receive(uint8_t cdc_ch, uint8_t *Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
   //HAL_UART_Transmit_DMA(CDC_CH_To_UART_Handle(cdc_ch), Buf, *Len);
   //CDC_Transmit(cdc_ch, Buf, *Len); // echo back on same channel
-	if(Buf[0] == 0xFF)
+	__disable_irq();
+	for( uint32_t i = 0; i < *Len; i ++ )
 	{
-		//for (uint8_t i = 0;i<*Len;i++)
-		//{
-		//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,0);
-			if(Buf[1] == 0xf0)
-			{
-				slider_get_board_info();
-			}
-			else if (Buf[1] == 0x03)
-			{
-				slider_scan_flag = 1;
-				HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,0);
-
-			}
-			else if (Buf[1] == 0x04)
-			{
-				slider_scan_flag = 0;
-				HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,1);
-			}
-			else if (Buf[1] == 0x10)
-			{
-				uint8_t slider_rst[4] = {0xFF,0x10,0x00,0xF1};
-				CDC_Transmit(0, slider_rst, 4);
-			}
-			else if(Buf[1] == 0x01)
-			{
-				slider_scan_flag = 1;
-				HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,0);
-			}
-
-		//}
+		rxData2[rxLen2+i] = Buf[i];
 	}
+	rxLen2 += *Len;
+	__enable_irq();
   USBD_CDC_SetRxBuffer(cdc_ch, &hUsbDevice, &Buf[0]);
   USBD_CDC_ReceivePacket(cdc_ch, &hUsbDevice);
   return (USBD_OK);
@@ -563,6 +542,7 @@ uint8_t CDC_Transmit(uint8_t ch, uint8_t *Buf, uint16_t Len)
 //  /* Start another reception: provide the buffer pointer with offset and the buffer size */
 //  HAL_UART_Receive_IT(huart, (TX_Buffer[cdc_ch] + Write_Index[cdc_ch]), 1);
 //}
+
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
 /**

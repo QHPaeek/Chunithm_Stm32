@@ -1,5 +1,5 @@
 stm32f4xx_hal_pcd.c:283:13:HAL_PCD_MspInit	1
-stm32f4xx_hal_pcd.c:123:19:HAL_PCD_Init	8
+stm32f4xx_hal_pcd.c:123:19:HAL_PCD_Init	9
 stm32f4xx_hal_pcd.c:298:13:HAL_PCD_MspDeInit	1
 stm32f4xx_hal_pcd.c:244:19:HAL_PCD_DeInit	3
 stm32f4xx_hal_pcd.c:1001:19:HAL_PCD_Start	4
@@ -16,6 +16,7 @@ stm32f4xx_hal_pcd.c:1648:13:HAL_PCD_ISOOUTIncompleteCallback	1
 stm32f4xx_hal_pcd.c:1665:13:HAL_PCD_ISOINIncompleteCallback	1
 stm32f4xx_hal_pcd.c:1681:13:HAL_PCD_ConnectCallback	1
 stm32f4xx_hal_pcd.c:1696:13:HAL_PCD_DisconnectCallback	1
+stm32f4xx_hal_pcd.c:1054:6:HAL_PCD_IRQHandler	154
 stm32f4xx_hal_pcd.c:1730:19:HAL_PCD_DevConnect	4
 stm32f4xx_hal_pcd.c:1753:19:HAL_PCD_DevDisconnect	4
 stm32f4xx_hal_pcd.c:1778:19:HAL_PCD_SetAddress	2
@@ -27,7 +28,6 @@ stm32f4xx_hal_pcd.c:1919:19:HAL_PCD_EP_Transmit	3
 stm32f4xx_hal_pcd.c:1955:19:HAL_PCD_EP_SetStall	5
 stm32f4xx_hal_pcd.c:1998:19:HAL_PCD_EP_ClrStall	4
 stm32f4xx_hal_pcd.c:2034:19:HAL_PCD_EP_Abort	2
-stm32f4xx_hal_pcd.c:1054:6:HAL_PCD_IRQHandler	80
 stm32f4xx_hal_pcd.c:2060:19:HAL_PCD_EP_Flush	3
 stm32f4xx_hal_pcd.c:2083:19:HAL_PCD_ActivateRemoteWakeup	1
 stm32f4xx_hal_pcd.c:2093:19:HAL_PCD_DeActivateRemoteWakeup	1

@@ -1,7 +1,6 @@
-usbd_ctlreq.c:868:6:USBD_CtlError.constprop	1
 usbd_ctlreq.c:100:20:USBD_StdDevReq	57
 usbd_ctlreq.c:163:20:USBD_StdItfReq	7
 usbd_ctlreq.c:214:20:USBD_StdEPReq	27
 usbd_ctlreq.c:839:6:USBD_ParseSetupRequest	1
 usbd_ctlreq.c:868:6:USBD_CtlError	1
-usbd_ctlreq.c:885:6:USBD_GetString	4
+usbd_ctlreq.c:885:6:USBD_GetString	6

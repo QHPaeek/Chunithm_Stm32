@@ -1,8 +1,7 @@
 usbd_desc.c:225:11:USBD_DeviceDescriptor	1
 usbd_desc.c:238:11:USBD_LangIDStrDescriptor	1
-usbd_desc.c:380:13:IntToUnicode	3
-usbd_desc.c:283:11:USBD_SerialStrDescriptor	2
 usbd_desc.c:270:11:USBD_ManufacturerStrDescriptor	1
 usbd_desc.c:251:11:USBD_ProductStrDescriptor	1
 usbd_desc.c:304:11:USBD_ConfigStrDescriptor	1
 usbd_desc.c:323:11:USBD_InterfaceStrDescriptor	1
+usbd_desc.c:283:11:USBD_SerialStrDescriptor	14

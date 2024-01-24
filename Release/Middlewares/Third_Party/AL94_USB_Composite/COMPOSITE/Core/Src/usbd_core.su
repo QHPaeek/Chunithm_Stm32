@@ -7,8 +7,8 @@
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:248:20:USBD_SetClassConfig	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:268:20:USBD_ClrClassConfig	8	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:286:20:USBD_LL_SetupStage	16	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:326:20:USBD_LL_DataOutStage	16	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:397:20:USBD_LL_DataInStage	24	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:326:20:USBD_LL_DataOutStage	8	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:397:20:USBD_LL_DataInStage	16	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:488:20:USBD_LL_Reset	16	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:527:20:USBD_LL_SetSpeed	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_core.c:542:20:USBD_LL_Suspend	0	static

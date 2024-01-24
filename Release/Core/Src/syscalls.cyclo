@@ -2,8 +2,8 @@ syscalls.c:44:6:initialise_monitor_handles	1
 syscalls.c:48:5:_getpid	1
 syscalls.c:53:5:_kill	1
 syscalls.c:61:6:_exit	1
-syscalls.c:67:27:_read	2
-syscalls.c:80:27:_write	2
+syscalls.c:67:27:_read	3
+syscalls.c:80:27:_write	3
 syscalls.c:92:5:_close	1
 syscalls.c:99:5:_fstat	1
 syscalls.c:106:5:_isatty	1

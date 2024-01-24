@@ -9,5 +9,5 @@ port.c:420:6:vPortExitCritical	3
 port.c:431:6:PendSV_Handler	1
 port.c:488:6:xPortSysTickHandler	2
 port.c:679:30:vPortSetupTimerInterrupt	1
-port.c:287:12:xPortStartScheduler	6
+port.c:287:12:xPortStartScheduler	8
 port.c:717:7:vPortValidateInterruptPriority	4
