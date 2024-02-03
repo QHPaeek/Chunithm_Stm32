@@ -25,6 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "adc.h"
+#include "usart.h"
 #include "usb_otg.h"
 #include "usb_device.h"
 #include "cy8cmbr3116.h"
@@ -34,6 +36,7 @@
 #include "tim.h"
 #include "LED.h"
 #include "usbd_cdc_acm_if.h"
+#include "usbd_hid_keyboard.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +56,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+	extern USBD_HandleTypeDef hUsbDevice;
 	uint8_t rxData2[USB_MAX_RECEIVE_LEN] = {0} ;
 	uint32_t rxLen2  = 0 ;
 /* USER CODE END Variables */
@@ -361,7 +365,7 @@ void StartTask03(void *argument)
 
 	 // if( rxLen2 > 0 ){
 	 // 			osDelay(10);
-	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�?
+	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�?
 	 // 			rxLen2 = 0;
 	 // 		}
   }
@@ -378,11 +382,39 @@ void StartTask03(void *argument)
 void StartTask04(void *argument)
 {
   /* USER CODE BEGIN StartTask04 */
+//uint32_t ADC_CHANNELS_LIST[5] = {ADC_CHANNEL_5, ADC_CHANNEL_6, ADC_CHANNEL_7, ADC_CHANNEL_8, ADC_CHANNEL_9};
+uint8_t key_list[5] = {47,48,51,52,55};
+uint8_t air_data[2] = {0};
+//第一位为当前要点亮的灯，第二位表示灯的状态（用于点亮ws2812）。第二位从低到高分别为1~5号air，6~8号无意义。
+uint8_t key_buffer[8] = {0,0,56,55,52,51,48,0};
   /* Infinite loop */
-  for(;;)
+  while(1)
   {
-    osDelay(1);
-  }
+	  //if(slider_scan_flag == 1){
+		  for (uint8_t i = 0; i < 5; i++)
+		  {
+			  HAL_ADC_Start(&hadc1);
+			  air_data[0] = i + 1;
+			  HAL_UART_Transmit(&huart2,air_data,2,HAL_MAX_DELAY);
+			  osDelay(50);
+			  uint32_t adcValue = HAL_ADC_GetValue(&hadc1);
+			  //uint8_t arr[4] = {0};
+			  //    arr[0] = (adcValue >> 24) & 0xFF; // Extract the highest 8 bits
+			  //    arr[1] = (adcValue >> 16) & 0xFF; // Extract the next 8 bits
+			  //    arr[2] = (adcValue >> 8) & 0xFF;  // Extract the next 8 bits
+			  //    arr[3] = adcValue & 0xFF;         // Extract the lowest 8 bits
+			  //CDC_Transmit(0, &i, 1);
+
+			  //CDC_Transmit(0, arr, 4);
+			  key_buffer[i + 2] = adcValue > 0x0E70 ? key_list[i] : 0 ;
+			  air_data[1] = adcValue > 0x0E70 ? air_data[1]| (1 << i) : air_data[1] & ~(1 << i);
+		  }
+		  key_buffer[0] = 0;
+		  key_buffer[1] = 0;
+		  USBD_HID_Keybaord_SendReport(&hUsbDevice,key_buffer,8);
+	  }
+	  //osDelay(50);
+  //}
   /* USER CODE END StartTask04 */
 }
 

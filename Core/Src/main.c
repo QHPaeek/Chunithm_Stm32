@@ -19,9 +19,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "adc.h"
 #include "dma.h"
 #include "i2c.h"
 #include "tim.h"
+#include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
 
@@ -127,8 +129,11 @@ int main(void)
   MX_I2C3_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_TIM4_Init();
+  MX_ADC1_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   MX_USB_DEVICE_Init();
+  //HAL_ADCEx_Calibration_Start(&hadc1);    //ADC内部校准
   HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,1);
   /* USER CODE END 2 */
 
