@@ -6,9 +6,9 @@ usbd_composite.c:591:16:USBD_COMPOSITE_IsoINIncomplete	1
 usbd_composite.c:743:17:USBD_COMPOSITE_GetHSCfgDesc	1
 usbd_composite.c:755:17:USBD_COMPOSITE_GetFSCfgDesc	1
 usbd_composite.c:784:10:USBD_COMPOSITE_GetDeviceQualifierDesc	1
-usbd_composite.c:799:17:USBD_COMPOSITE_GetUsrStringDesc	3
-usbd_composite.c:300:16:USBD_COMPOSITE_Setup	3
-usbd_composite.c:389:16:USBD_COMPOSITE_DataIn	3
+usbd_composite.c:799:17:USBD_COMPOSITE_GetUsrStringDesc	4
+usbd_composite.c:300:16:USBD_COMPOSITE_Setup	4
+usbd_composite.c:389:16:USBD_COMPOSITE_DataIn	4
 usbd_composite.c:676:16:USBD_COMPOSITE_DataOut	2
 usbd_composite.c:636:16:USBD_COMPOSITE_IsoOutIncomplete	1
 usbd_composite.c:550:16:USBD_COMPOSITE_SOF	1

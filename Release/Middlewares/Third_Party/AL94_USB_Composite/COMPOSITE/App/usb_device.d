@@ -44,7 +44,8 @@ Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usb_device.o: \
  ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Inc/usbd_ctlreq.h \
  ../Composite/AL94.I-CUBE-USBD-COMPOSITE_conf.h \
  ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_cdc_acm_if.h \
- ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/CDC_ACM/Inc/usbd_cdc_acm.h
+ ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/CDC_ACM/Inc/usbd_cdc_acm.h \
+ ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/HID_KEYBOARD/Inc/usbd_hid_keyboard.h
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usb_device.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
@@ -91,3 +92,4 @@ Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usb_device.o: \
 ../Composite/AL94.I-CUBE-USBD-COMPOSITE_conf.h:
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_cdc_acm_if.h:
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/CDC_ACM/Inc/usbd_cdc_acm.h:
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/HID_KEYBOARD/Inc/usbd_hid_keyboard.h:

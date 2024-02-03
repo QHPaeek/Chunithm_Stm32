@@ -77,6 +77,13 @@ const osThreadAttr_t Task03_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for Task04 */
+osThreadId_t Task04Handle;
+const osThreadAttr_t Task04_attributes = {
+  .name = "Task04",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -86,6 +93,7 @@ const osThreadAttr_t Task03_attributes = {
 void StartDefaultTask(void *argument);
 void StartTask02(void *argument);
 void StartTask03(void *argument);
+void StartTask04(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -124,6 +132,9 @@ void MX_FREERTOS_Init(void) {
 
   /* creation of Task03 */
   Task03Handle = osThreadNew(StartTask03, NULL, &Task03_attributes);
+
+  /* creation of Task04 */
+  Task04Handle = osThreadNew(StartTask04, NULL, &Task04_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -209,7 +220,7 @@ void StartTask02(void *argument)
   {
     uint8_t esc = 0;
     uint8_t LED_byte_num = 0;
-    //转译标志
+    int gbr_status = 0;
     for(uint8_t i = 3 ;i<200;i++)
     {
     	if(LED_byte_num >=96)
@@ -226,19 +237,42 @@ void StartTask02(void *argument)
     		RGB_data_temp = RGB_data_raw[i] +1;
     		for(uint8_t j = 0 ;j <8;j++)
     		{
-    			RGB_data_DMA_buffer[LED_byte_num*8+j] = (RGB_data_temp & (0b1<<j))? 82:24;
+    			RGB_data_DMA_buffer[(LED_byte_num+gbr_status)*8+j] = (RGB_data_temp & (0b1<<j))? 82:24;
     		}
     		LED_byte_num ++;
     		esc = 0;
+    		switch(gbr_status)
+    		{
+    		case 0:
+    			gbr_status = 1;
+    			break;
+    		case 1:
+    			gbr_status = -1;
+    			break;
+    		case -1:
+    			gbr_status = 0;
+    			break;
+    		}
     	}
     	else
     	{
     		RGB_data_temp = RGB_data_raw[i];
     		for(uint8_t j = 0 ;j <8;j++)
     		{
-    		    RGB_data_DMA_buffer[LED_byte_num*8+j] = (RGB_data_temp & (0b1<<j)) ? 82:24;
+    		    RGB_data_DMA_buffer[(LED_byte_num+gbr_status)*8+j] = (RGB_data_temp & (0b1<<j)) ? 82:24;
     		}
     		LED_byte_num ++;
+    		switch(gbr_status){
+    		case 0:
+    			gbr_status = 1;
+    			break;
+    		case 1:
+    			gbr_status = -1;
+    			break;
+    		case -1:
+    			gbr_status = 0;
+    			break;
+    		}
     	}
      }
     while (LED_byte_num < 96)
@@ -327,11 +361,29 @@ void StartTask03(void *argument)
 
 	 // if( rxLen2 > 0 ){
 	 // 			osDelay(10);
-	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发送回去
+	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�?
 	 // 			rxLen2 = 0;
 	 // 		}
   }
   /* USER CODE END StartTask03 */
+}
+
+/* USER CODE BEGIN Header_StartTask04 */
+/**
+* @brief Function implementing the Task04 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartTask04 */
+void StartTask04(void *argument)
+{
+  /* USER CODE BEGIN StartTask04 */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartTask04 */
 }
 
 /* Private application code --------------------------------------------------*/

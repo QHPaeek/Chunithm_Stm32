@@ -1,13 +1,13 @@
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:202:16:USBD_COMPOSITE_Init	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:251:16:USBD_COMPOSITE_DeInit	8	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:202:16:USBD_COMPOSITE_Init	16	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:251:16:USBD_COMPOSITE_DeInit	16	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:468:16:USBD_COMPOSITE_EP0_RxReady	8	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:511:16:USBD_COMPOSITE_EP0_TxReady	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:591:16:USBD_COMPOSITE_IsoINIncomplete	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:743:17:USBD_COMPOSITE_GetHSCfgDesc	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:755:17:USBD_COMPOSITE_GetFSCfgDesc	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:784:10:USBD_COMPOSITE_GetDeviceQualifierDesc	0	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:799:17:USBD_COMPOSITE_GetUsrStringDesc	24	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:300:16:USBD_COMPOSITE_Setup	0	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:799:17:USBD_COMPOSITE_GetUsrStringDesc	32	static
+../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:300:16:USBD_COMPOSITE_Setup	8	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:389:16:USBD_COMPOSITE_DataIn	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:676:16:USBD_COMPOSITE_DataOut	0	static
 ../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Class/COMPOSITE/Src/usbd_composite.c:636:16:USBD_COMPOSITE_IsoOutIncomplete	0	static
