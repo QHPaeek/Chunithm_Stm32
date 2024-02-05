@@ -1,6 +1,0 @@
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:100:20:USBD_StdDevReq	32	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:163:20:USBD_StdItfReq	16	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:214:20:USBD_StdEPReq	16	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:839:6:USBD_ParseSetupRequest	0	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:868:6:USBD_CtlError	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/Core/Src/usbd_ctlreq.c:885:6:USBD_GetString	8	static

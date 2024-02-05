@@ -1,7 +1,0 @@
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:225:11:USBD_DeviceDescriptor	0	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:238:11:USBD_LangIDStrDescriptor	0	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:270:11:USBD_ManufacturerStrDescriptor	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:251:11:USBD_ProductStrDescriptor	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:304:11:USBD_ConfigStrDescriptor	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:323:11:USBD_InterfaceStrDescriptor	8	static
-../Middlewares/Third_Party/AL94_USB_Composite/COMPOSITE/App/usbd_desc.c:283:11:USBD_SerialStrDescriptor	0	static
