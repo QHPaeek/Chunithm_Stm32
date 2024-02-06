@@ -26,7 +26,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "adc.h"
-#include "usart.h"
 #include "usb_otg.h"
 #include "usb_device.h"
 #include "cy8cmbr3116.h"
@@ -365,7 +364,7 @@ void StartTask03(void *argument)
 
 	 // if( rxLen2 > 0 ){
 	 // 			osDelay(10);
-	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�??
+	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�??????
 	 // 			rxLen2 = 0;
 	 // 		}
   }
@@ -385,17 +384,19 @@ void StartTask04(void *argument)
 //uint32_t ADC_CHANNELS_LIST[5] = {ADC_CHANNEL_5, ADC_CHANNEL_6, ADC_CHANNEL_7, ADC_CHANNEL_8, ADC_CHANNEL_9};
 uint8_t key_list[5] = {4,5,6,7,8};
 uint8_t air_data[2] = {0};
-//第一位为当前要点亮的灯，第二位表示灯的状态（用于点亮ws2812）�?�第二位从低到高分别�?1~5号air�?6~8号无意义�?
+//第一位为当前要点亮的灯，第二位表示灯的状态（用于点亮ws2812）
 uint8_t key_buffer[8] = {0,0,0,0,0,0,0,0};
 uint32_t adc_threshold_buffer[5] = {0};
-uint32_t adc_threshold[5] = {0xffff,0xffff,0xffff,0xffff,0xffff};
+uint32_t adc_threshold[5] = {0};
   /* Infinite loop */
 	for (uint8_t j = 0 ; j < 50 ; j++)
 	{
 		for (uint8_t k = 0; k < 5; k++)
 		{
 			air_data[0] = k + 1;
-			HAL_UART_Transmit(&huart2,air_data,2,HAL_MAX_DELAY);
+			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,k&1);
+			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(k>>1)&1);
+			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(k>>2)&1);
 			osDelay(1);
 			HAL_ADC_Start(&hadc1);
 			osDelay(1);
@@ -403,8 +404,10 @@ uint32_t adc_threshold[5] = {0xffff,0xffff,0xffff,0xffff,0xffff};
 		}
 		for(uint8_t m = 0 ; m < 5 ; m++)
 		{
-
-			adc_threshold[m] = (adc_threshold[m] + adc_threshold_buffer[m]) /2;
+			if(adc_threshold[m] < adc_threshold_buffer[m])
+			{
+				adc_threshold[m] = adc_threshold_buffer[m];
+			}
 		}
 	}
   while(1)
@@ -413,7 +416,9 @@ uint32_t adc_threshold[5] = {0xffff,0xffff,0xffff,0xffff,0xffff};
 		  for (uint8_t i = 0; i < 5; i++)
 		  {
 			  air_data[0] = i + 1;
-			  HAL_UART_Transmit(&huart2,air_data,2,HAL_MAX_DELAY);
+			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,i&1);
+			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(i>>1)&1);
+			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(i>>2)&1);
 			  osDelay(1);
 			  HAL_ADC_Start(&hadc1);
 			  osDelay(1);
@@ -426,8 +431,8 @@ uint32_t adc_threshold[5] = {0xffff,0xffff,0xffff,0xffff,0xffff};
 			  //CDC_Transmit(0, &i, 1);
 
 			  //CDC_Transmit(0, arr, 4);
-			  key_buffer[i + 2] = adcValue > adc_threshold[i] ? key_list[i] : 0 ;
-			  air_data[1] = adcValue > adc_threshold[i] ? air_data[1]| (1 << i) : air_data[1] & ~(1 << i) ;
+			  key_buffer[i + 2] = adcValue <= adc_threshold[i] ? 0 : key_list[i] ;
+			  air_data[1] = adcValue <= adc_threshold[i] ? air_data[1] & ~(1 << i) : air_data[1]| (1 << i) ;
 		  }
 		  key_buffer[0] = 0;
 		  key_buffer[1] = 0;
