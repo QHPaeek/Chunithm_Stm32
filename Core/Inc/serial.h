@@ -17,5 +17,6 @@ extern int checkserial;
 extern uint8_t slider_key_tx_buf[36];
 extern uint8_t serial_task_status;
 extern uint8_t slider_rst[4];
+extern uint8_t slider_scan_stop_cmd[5];
 extern uint8_t Buffer[256];
 #endif

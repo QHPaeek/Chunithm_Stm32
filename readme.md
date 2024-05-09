@@ -8,10 +8,9 @@
 
 2.重新插拔设备，将弹出的USB串行设备分配为COM1
 
-3.编辑Segatool.ini使其停止Hook串口。
+~~3.编辑Segatool.ini使其停止Hook串口。~~
 
-`[slider]
-enable=0`
+3.编辑Segatool.ini，使用affine.dll IO文件连接游戏。
 
 4.直接启动游戏。ENJOY！
 
@@ -19,13 +18,17 @@ enable=0`
 
 依赖[AL94_USB_Composite]([https://github.com/alambe94/I-CUBE-USBD-Composite)库实现USB多设备复合工作。请在CUBEIDE中正确安装这个库。
 
+**关于IO：**
+
+本手台使用原创的IO连接游戏，详情请见[AffineIO](https://github.com/QHPaeek/Affine_IO)
+
 **关于硬件：**[chunithm_affine](https://oshwhub.com/remige/chunithm_affine)
 
 本设计的硬件尚未完善，目前只是能运行的DEMO版本。后续将持续不断更新PCB设计以及外壳。
 
 **关于传感器：**
 
-本分支为CY8CMBR3116分支（主分支），同时还有尚未开发完毕的MPR121分支，后续还会兼容其他触摸传感器。
+本分支为CY8CMBR3116分支（主分支），同时还有尚未开发完毕的MPR121分支，后续可能还会兼容其他触摸传感器。
 
 **关于主控：**
 
@@ -35,8 +38,8 @@ enable=0`
 
 1.AL94_USB_Composite库在生成代码时并不会保护USER CODE区域中的用户代码，而本程序需要在USB接收回调函数中实现功能。因此请手动保护`\F411_chunithm_15.6\Middlewares\Third_Party\AL94_USB_Composite\COMPOSITE\App`目录下的`usbd_cdc_acm_if.c`以及`usbd_cdc_acm_if.h`两个文件。
 
-2.目前的串口逻辑还存在问题，进入游戏会提示ERROR 3100，但是报错后按F1进入TEST后再退出就可以正常使用。
+~~2.目前的串口逻辑还存在问题，进入游戏会提示ERROR 3100，但是报错后按F1进入TEST后再退出就可以正常使用。~~
 
-3.灯光的颜色是反的。
+~~3.灯光的颜色是反的。~~
 
-4.左侧11个灯的刷新频率可能较低。（受USB传输包长限制）
+~~4.左侧11个灯的刷新频率可能较低。（受USB传输包长限制）~~

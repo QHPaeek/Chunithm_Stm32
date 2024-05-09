@@ -21,7 +21,7 @@ extern const uint8_t key_sheet[32];
 #define TOTAL_WORK_SNS 0x97
 
 void key_scan();
-void Sensor_softRST();
-void Sensor_Cfg();
+void Sensor_softRST(I2C_HandleTypeDef *hi2cx);
+void Sensor_Cfg(I2C_HandleTypeDef *hi2cx);
 
 #endif

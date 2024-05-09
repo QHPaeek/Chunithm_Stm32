@@ -56,8 +56,11 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 	extern USBD_HandleTypeDef hUsbDevice;
+	uint8_t rxData[USB_MAX_RECEIVE_LEN] = {0} ;
 	uint8_t rxData2[USB_MAX_RECEIVE_LEN] = {0} ;
 	uint32_t rxLen2  = 0 ;
+	uint8_t Air_key_buffer = 0;
+	uint8_t Air_scan_flag = 0;
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -160,16 +163,16 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-	osDelay(5);
-	Sensor_Cfg();
+	osDelay(8);
+	Sensor_Cfg(&hi2c1);
+	Sensor_Cfg(&hi2c3);
 	//uint8_t slider_key_tx_buf[36] = {0xff,0x01,0x24};
 	uint8_t slider_key_tx_buf2[37] = {0xFF,0x01,0x20,0x00,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
 			,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
 			,0x00,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xE0 ,0x00};
-  //while(slider_scan_flag)
   while(1)
   {
-	osDelay(10);
+	osDelay(1);
 	if(slider_scan_flag == 1)
 	{
 	int chksum = 0xff+0x01+0x20;
@@ -219,76 +222,60 @@ void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
   /* Infinite loop */
+	RGB_data_DMA_buffer[969] = 120;
+	RGB_Air_DMA_buffer[591] = 120;
   for(;;)
   {
-    uint8_t esc = 0;
-    uint8_t LED_byte_num = 0;
-    int gbr_status = 0;
-    for(uint8_t i = 3 ;i<200;i++)
-    {
-    	if(LED_byte_num >=96)
-    	{
-    		break;
-    	}
-    	if(RGB_data_raw[i] == 0xfd)
-    	{
-    		esc = 1;
-    		continue;
-    	}
-    	if(esc == 1)
-    	{
-    		RGB_data_temp = RGB_data_raw[i] +1;
-    		for(uint8_t j = 0 ;j <8;j++)
-    		{
-    			RGB_data_DMA_buffer[(LED_byte_num+gbr_status)*8+j] = (RGB_data_temp & (0b1<<j))? 82:24;
-    		}
-    		LED_byte_num ++;
-    		esc = 0;
-    		switch(gbr_status)
-    		{
-    		case 0:
-    			gbr_status = 1;
-    			break;
-    		case 1:
-    			gbr_status = -1;
-    			break;
-    		case -1:
-    			gbr_status = 0;
-    			break;
-    		}
-    	}
-    	else
-    	{
-    		RGB_data_temp = RGB_data_raw[i];
-    		for(uint8_t j = 0 ;j <8;j++)
-    		{
-    		    RGB_data_DMA_buffer[(LED_byte_num+gbr_status)*8+j] = (RGB_data_temp & (0b1<<j)) ? 82:24;
-    		}
-    		LED_byte_num ++;
-    		switch(gbr_status){
-    		case 0:
-    			gbr_status = 1;
-    			break;
-    		case 1:
-    			gbr_status = -1;
-    			break;
-    		case -1:
-    			gbr_status = 0;
-    			break;
-    		}
-    	}
-     }
-    while (LED_byte_num < 96)
+    for(uint8_t i = 0 ;i<31;i++)
     {
     	for(uint8_t j = 0 ;j <8;j++)
     	{
-    	   RGB_data_DMA_buffer[LED_byte_num*8+j] = 24;
+    		RGB_data_DMA_buffer[(i*3)*8+j+224] = (RGB_data_raw[4+i*3+2] & (1<<j)) ? 90:30;
     	}
-    	LED_byte_num ++;
+    	for(uint8_t j = 0 ;j <8;j++)
+    	{
+    		RGB_data_DMA_buffer[(i*3+1)*8+j+224] = (RGB_data_raw[4+i*3+1] & (1<<j)) ? 90:30;
+    	}
+    	for(uint8_t j = 0 ;j <8;j++)
+    	{
+    		RGB_data_DMA_buffer[(i*3+2)*8+j+224] = (RGB_data_raw[4+i*3] & (1<<j)) ? 90:30;
+    	}
     }
-	  HAL_TIM_PWM_Start_DMA(&htim4, TIM_CHANNEL_1, (uint32_t *)RGB_data_DMA_buffer, 769);
-	  HAL_TIM_PWM_Start_DMA(&htim4, TIM_CHANNEL_1, (uint32_t *)RST_buffer, 240);
-	  osDelay(50);
+    for(uint8_t i = 0 ;i<6;i++)
+    {
+    	if(Air_key_buffer & (1<<i)){
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3)*8+j+224] = 90;
+    		}
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3+1)*8+j+224] =90;
+    		}
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3+2)*8+j+224] =90;
+    		}
+    	}
+    	else{
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3)*8+j+224] = 30;
+    		}
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3+1)*8+j+224] =30;
+    		}
+    		for(uint8_t j = 0 ;j <8;j++)
+    		{
+    			RGB_Air_DMA_buffer[(i*3+2)*8+j+224] =90;
+    		}
+    	}
+    }
+	HAL_TIM_PWM_Start_DMA(&htim5, TIM_CHANNEL_1, (uint32_t *)RGB_data_DMA_buffer, 970);
+	//HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_3, (uint32_t *)RGB_data_DMA_buffer, 970);
+	HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_3, (uint32_t *)RGB_Air_DMA_buffer, 592);
+	osDelay(50);
   }
   /* USER CODE END StartTask02 */
 }
@@ -308,10 +295,9 @@ void StartTask03(void *argument)
 	uint8_t led_flag_len = 0;
   for(;;)
   {
-	  osDelay(1);
-	  if (rxLen2 != 0)
-	  {
-		  if(rxData2[0] == 0xFF)
+	osDelay(1);
+	if (rxLen2 != 0){
+		if(rxData2[0] == 0xFF)
 		  {
     		//for (uint8_t i = 0;i<*Len;i++)
     		//{
@@ -326,6 +312,8 @@ void StartTask03(void *argument)
     					break;
     				case 0x04:
     					slider_scan_flag = 0;
+    					CDC_Transmit(0, slider_scan_stop_cmd, 5);
+    					//HAL_Delay(100);
     					HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,1);
     					break;
     				case 0x10:
@@ -333,41 +321,26 @@ void StartTask03(void *argument)
     					break;
     				case 0x01:
     					slider_scan_flag = 1;
-    					//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,0);
+    					//HAL_GPIO_WritePin(GPIOC,GPIO_PIN3_13,0);
     					break;
     				case 0x02:
-    				//memcpy(RGB_data_raw,Buf,Len);
-    				//CDC_Transmit(0, RGB_data, Len);
-    				for(uint8_t i = 0;i< rxLen2 ;i++)
-    				{
-    					RGB_data_raw[i] = rxData2[i];
-    					led_flag = 1;
-    					led_flag_len = rxLen2;
-    				}
-
-    					//HAL_DMA_Start (&hdma_memtomem_dma2_channel0 , (uint32_t) Buf , (uint32_t) RGB_data_raw , (uint32_t) Len );
+    					for(uint8_t i = 0;i< rxLen2 ;i++){
+    						RGB_data_raw[i] = rxData2[i];
+    						led_flag = 1;
+    					}
+    					break;
+    				case 0x06:
+    					Air_scan_flag = 1;
+    					break;
+    				case 0x07:
+    					Air_scan_flag = 0;
     					break;
     				default:
     					break;
     			}
     	}
-    	else if (led_flag == 1)
-    	{
-    		for(uint8_t i = 0;i< rxLen2 ;i++)
-    		{
-    			RGB_data_raw[i+led_flag_len] = rxData2[i];
-    			led_flag = 0;
-    		}
-    	}
-		rxLen2 = 0;
 	  }
-
-	 // if( rxLen2 > 0 ){
-	 // 			osDelay(10);
-	 // 			CDC_Transmit(0, rxData2, rxLen2 );//通过usb虚拟串口发�?�回�??????
-	 // 			rxLen2 = 0;
-	 // 		}
-  }
+	}
   /* USER CODE END StartTask03 */
 }
 
@@ -381,28 +354,23 @@ void StartTask03(void *argument)
 void StartTask04(void *argument)
 {
   /* USER CODE BEGIN StartTask04 */
-//uint32_t ADC_CHANNELS_LIST[5] = {ADC_CHANNEL_5, ADC_CHANNEL_6, ADC_CHANNEL_7, ADC_CHANNEL_8, ADC_CHANNEL_9};
-uint8_t key_list[5] = {4,5,6,7,8};
-uint8_t air_data[2] = {0};
-//第一位为当前要点亮的灯，第二位表示灯的状态（用于点亮ws2812）
-uint8_t key_buffer[8] = {0,0,0,0,0,0,0,0};
-uint32_t adc_threshold_buffer[5] = {0};
-uint32_t adc_threshold[5] = {0};
+uint32_t adc_threshold_buffer[6] = {0};
+uint32_t adc_threshold[6] = {0};
+uint8_t Air_CMD[5] = {0xff,0x05,0x01,0x00,0x00};
   /* Infinite loop */
 	for (uint8_t j = 0 ; j < 50 ; j++)
 	{
-		for (uint8_t k = 0; k < 5; k++)
+		for (uint8_t k = 0; k < 6; k++)
 		{
-			air_data[0] = k + 1;
-			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,k&1);
-			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(k>>1)&1);
-			HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(k>>2)&1);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(k&0b00000001)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(k&0b00000010)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(k&0b00000100)? 1 : 0);
 			osDelay(1);
 			HAL_ADC_Start(&hadc1);
 			osDelay(1);
 			adc_threshold_buffer[k] = HAL_ADC_GetValue(&hadc1);
 		}
-		for(uint8_t m = 0 ; m < 5 ; m++)
+		for(uint8_t m = 0 ; m < 6 ; m++)
 		{
 			if(adc_threshold[m] < adc_threshold_buffer[m])
 			{
@@ -410,36 +378,31 @@ uint32_t adc_threshold[5] = {0};
 			}
 		}
 	}
+	for(uint8_t n = 0 ; n < 6 ; n++)
+	{
+		adc_threshold[n] += 100;
+	}
+
   while(1)
   {
-	  //if(slider_scan_flag == 1){
-		  for (uint8_t i = 0; i < 5; i++)
-		  {
-			  air_data[0] = i + 1;
-			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,i&1);
-			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(i>>1)&1);
-			  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_1,(i>>2)&1);
-			  osDelay(1);
-			  HAL_ADC_Start(&hadc1);
-			  osDelay(1);
-			  uint32_t adcValue = HAL_ADC_GetValue(&hadc1);
-			  //uint8_t arr[4] = {0};
-			  //    arr[0] = (adcValue >> 24) & 0xFF; // Extract the highest 8 bits
-			  //    arr[1] = (adcValue >> 16) & 0xFF; // Extract the next 8 bits
-			  //    arr[2] = (adcValue >> 8) & 0xFF;  // Extract the next 8 bits
-			  //    arr[3] = adcValue & 0xFF;         // Extract the lowest 8 bits
-			  //CDC_Transmit(0, &i, 1);
-
-			  //CDC_Transmit(0, arr, 4);
-			  key_buffer[i + 2] = adcValue <= adc_threshold[i] ? 0 : key_list[i] ;
-			  air_data[1] = adcValue <= adc_threshold[i] ? air_data[1] & ~(1 << i) : air_data[1]| (1 << i) ;
-		  }
-		  key_buffer[0] = 0;
-		  key_buffer[1] = 0;
-		  USBD_HID_Keybaord_SendReport(&hUsbDevice,key_buffer,8);
-	  }
-	  //osDelay(50);
-  //}
+	for (uint8_t i = 0; i < 6; i++){
+		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
+		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
+		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
+		osDelay(1);
+		HAL_ADC_Start(&hadc1);
+		osDelay(1);
+		uint32_t adcValue = HAL_ADC_GetValue(&hadc1);
+		Air_key_buffer = Air_key_buffer & (~(1 << i));
+		Air_key_buffer = Air_key_buffer | ((adcValue <= adc_threshold[i] ? 0 : 1) << i) ;
+	}
+	Air_CMD[3] = Air_key_buffer;
+	Air_CMD[4] = 0 - (Air_key_buffer + 0xff + 0x05 + 0x01);
+	if(Air_scan_flag){
+		CDC_Transmit(0, Air_CMD, 5);
+	}
+	osDelay(1);
+  }
   /* USER CODE END StartTask04 */
 }
 

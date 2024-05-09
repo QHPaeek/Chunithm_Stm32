@@ -118,7 +118,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+ __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -127,8 +127,10 @@ int main(void)
   MX_I2C1_Init();
   MX_I2C3_Init();
   MX_USB_OTG_FS_PCD_Init();
-  MX_TIM4_Init();
   MX_ADC1_Init();
+  MX_TIM2_Init();
+  MX_TIM4_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   MX_USB_DEVICE_Init();
   //HAL_ADCEx_Calibration_Start(&hadc1);    //ADC内部校准
