@@ -49,7 +49,7 @@
 #define _USBD_USE_HID_MOUSE      false
 
 /*---------- _USBD_USE_HID_KEYBOARD  -----------*/
-#define _USBD_USE_HID_KEYBOARD      true
+#define _USBD_USE_HID_KEYBOARD      false
 
 /*---------- _USBD_USE_HID_CUSTOM  -----------*/
 #define _USBD_USE_HID_CUSTOM      false

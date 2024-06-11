@@ -8,11 +8,11 @@ extern uint8_t sensor_sys_status[32] = {0} ;
 uint8_t KEY_ADDR[16] =
 {0xba,0xbc,0xbe,0xc0,0xc2,0xc4,0xc6,0xc8,0xca,0xcc,0xce,0xd0,0xd2,0xd4,0xd6,0xd8};
 const uint8_t key_sheet[32]	//针对CY8CMBR3116模块实际传感通道与游戏内按键序号的对应表。数组顺序是0-31对应游戏内32个按键，数组数值对应key_status[32]的序号。
-={4,5,6,7,8,9,11,10,13,12,14,15,3,2,1,0,20,21,22,23,25,24,26,27,28,29,31,30,18,19,16,17};
+={4,5,6,7,8,9,10,11,13,12,14,15,3,2,0,1,20,21,23,22,25,24,27,26,29,28,31,30,18,19,16,17};
 uint8_t mem_temp = 0;
 uint8_t CRC_data[2] = {0x39,0xF7};
 
-const unsigned char CY8CMBR3116_configuration[128] = {
+unsigned char CY8CMBR3116_configuration[128] = {
 		    0xFFu, 0xFFu, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u, 0x00u,
 		    0xFFu, 0xFFu, 0xFFu, 0xFFu, 0x80u, 0x80u, 0x80u, 0x80u,
 		    0x80u, 0x80u, 0x80u, 0x80u, 0x80u, 0x80u, 0x80u, 0x80u,
@@ -57,9 +57,12 @@ void Sensor_softRST(I2C_HandleTypeDef *hi2cx)
 
 void Sensor_Cfg(I2C_HandleTypeDef *hi2cx)
 {
-	uint8_t sensor_sys_status = 1;
-	HAL_I2C_Mem_Read(hi2cx,SENSOR_ADDR,SYSTEM_STATUS,I2C_MEMADD_SIZE_8BIT,&sensor_sys_status,1,100);
-	if (sensor_sys_status == 1)
+	uint8_t sensor_sys_status = 0;
+	uint8_t sensor_sys_version = 2;//当前传感器软件版本
+	CY8CMBR3116_configuration[USER_DATA] = sensor_sys_version;
+	//HAL_I2C_Mem_Read(hi2cx,SENSOR_ADDR,SYSTEM_STATUS,I2C_MEMADD_SIZE_8BIT,&sensor_sys_status,1,100);
+	HAL_I2C_Mem_Read(hi2cx,SENSOR_ADDR,USER_DATA,I2C_MEMADD_SIZE_8BIT,&sensor_sys_status,1,100);
+	if (sensor_sys_status != sensor_sys_version)
 	{
 	// 首先将配置数据和 CRC 值写入到 CY8CMBR3xxx 控制器寄存器内
 	while(HAL_I2C_Mem_Write(hi2cx,SENSOR_ADDR,0x00,I2C_MEMADD_SIZE_8BIT,CY8CMBR3116_configuration,128,100)!=HAL_OK);

@@ -92,7 +92,7 @@ extern USBD_CDC_ACM_ItfTypeDef  USBD_CDC_ACM_fops;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 #define USB_MAX_RECEIVE_LEN 4096
-extern uint8_t rxData2[USB_MAX_RECEIVE_LEN];
+extern uint8_t rxData2[4096];
 extern uint32_t rxLen2;
 extern 	uint8_t package_flag;
 extern USBD_HandleTypeDef hUsbDeviceFS;

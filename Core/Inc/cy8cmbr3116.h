@@ -9,7 +9,7 @@
 
 extern uint8_t key_status[32];
 extern uint8_t KEY_ADDR[16];
-extern const unsigned char CY8CMBR3116_configuration[128];
+extern unsigned char CY8CMBR3116_configuration[128];
 extern const uint8_t key_sheet[32];
 
 #define SENSOR_ADDR 0x6E
@@ -19,6 +19,7 @@ extern const uint8_t key_sheet[32];
 #define SYSTEM_STATUS 0x8A	//0: 非默认的出厂配置	1: 默认的出厂配置
 #define CALC_CRC 0x94	//主机指令操作码 0x03 计算的配置数据 CRC
 #define TOTAL_WORK_SNS 0x97
+#define USER_DATA 0x7A //8BIT用户数据，可用来保持维护信息等。
 
 void key_scan();
 void Sensor_softRST(I2C_HandleTypeDef *hi2cx);
