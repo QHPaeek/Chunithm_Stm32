@@ -1,0 +1,4 @@
+i2c.c:33:6:MX_I2C1_Init	2
+i2c.c:62:6:MX_I2C3_Init	2
+i2c.c:91:6:HAL_I2C_MspInit	5
+i2c.c:203:6:HAL_I2C_MspDeInit	3

@@ -42,14 +42,14 @@ extern "C" {
   * @{
   */
 
-#define HID_KEYBOARD_STR_DESC                               "STM32 USB KEYBOARD"
+#define HID_KEYBOARD_STR_DESC                               "Linnea KeyBoard"
 
 #define HID_KEYBOARD_EPIN_SIZE                              0x08U
 
 #define HID_KEYBOARD_CONFIG_DESC_SIZE                       34U
 #define HID_KEYBOARD_DESC_SIZE                              9U
 
-#define HID_KEYBOARD_REPORT_DESC_SIZE                       187U
+#define HID_KEYBOARD_REPORT_DESC_SIZE                       63U
 
 #define HID_KEYBOARD_DESCRIPTOR_TYPE                        0x21U
 #define HID_KEYBOARD_REPORT_DESC                            0x22U

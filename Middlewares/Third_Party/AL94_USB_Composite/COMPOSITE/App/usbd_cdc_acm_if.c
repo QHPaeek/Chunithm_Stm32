@@ -426,27 +426,21 @@ static int8_t CDC_Control(uint8_t cdc_ch, uint8_t cmd, uint8_t *pbuf, uint16_t l
 static int8_t CDC_Receive(uint8_t cdc_ch, uint8_t *Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  //HAL_UART_Transmit_DMA(CDC_CH_To_UART_Handle(cdc_ch), Buf, *Len);
-  //CDC_Transmit(cdc_ch, Buf, *Len); // echo back on same channel
-	//package_flag = 0;
 	USBD_CDC_SetRxBuffer(cdc_ch, &hUsbDevice, &Buf[0]);
 	USBD_CDC_ReceivePacket(cdc_ch, &hUsbDevice);
-	if(rxLen2 == 64)
+	if(rxLen == 64)
 	{
 		for( uint32_t i = 0; i < *Len; i ++ ){
-			rxData2[i+64] = Buf[i];
+			rxData[i+64] = Buf[i];
 		}
-		rxLen2 += *Len;
+		rxLen += *Len;
 	}
 	else{
 		for( uint32_t i = 0; i < *Len; i ++ ){
-		rxData2[i] = Buf[i];
+		rxData[i] = Buf[i];
 		}
-		rxLen2 = *Len;
+		rxLen = *Len;
 	}
-	//__enable_irq();
-
-  return (USBD_OK);
   return (USBD_OK);
   /* USER CODE END 6 */
 }

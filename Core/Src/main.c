@@ -132,8 +132,9 @@ int main(void)
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   MX_USB_DEVICE_Init();
-  //HAL_ADCEx_Calibration_Start(&hadc1);    //ADC内部校准
-  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,1);
+  //HAL_ADCEx_Calibration_Start(&hadc1);
+  //HAL_GPIO_WritePin(GPIOC,GPIO_PIN_13,1);
+  //HAL_TIM_Base_Start_IT(&htim5);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -201,46 +202,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-//void DMA1_Stream0_IRQHandler(void)
-//{
-//    /* �??查并处理传输完成中断 */
-//    if (HAL_DMA_GetState(&hdma) == HAL_DMA_STATE_READY)
-//    {
-//        /* 清除传输完成中断标志 */
-//        __HAL_DMA_CLEAR_FLAG(&hdma, DMA_FLAG_TCx);
-//        /* 处理传输完成事件 */
-//        /* TODO: 添加处理传输完成的代�?? */
-//    }
-//
-//    /* �??查并处理传输错误中断 */
-//    if (__HAL_DMA_GET_FLAG(&hdma, DMA_FLAG_TEx))
-//    {
-//        /* 清除传输错误中断标志 */
-//        __HAL_DMA_CLEAR_FLAG(&hdma, DMA_FLAG_TEx);
-//        /* 处理传输错误事件 */
-//        /* TODO: 添加处理传输错误的代�?? */
-//    }
-//}
-//void DMA1_Stream2_IRQHandler(void)
-//{
-//    /* �??查并处理传输完成中断 */
-//    if (HAL_DMA_GetState(&hdma) == HAL_DMA_STATE_READY)
-//    {
-//        /* 清除传输完成中断标志 */
-//        __HAL_DMA_CLEAR_FLAG(&hdma, DMA_FLAG_TCx);
-//        /* 处理传输完成事件 */
-//        /* TODO: 添加处理传输完成的代�?? */
-//    }
-//
-//    /* �??查并处理传输错误中断 */
-//    if (__HAL_DMA_GET_FLAG(&hdma, DMA_FLAG_TEx))
-//    {
-//        /* 清除传输错误中断标志 */
-//        __HAL_DMA_CLEAR_FLAG(&hdma, DMA_FLAG_TEx);
-//        /* 处理传输错误事件 */
-//        /* TODO: 添加处理传输错误的代�?? */
-//    }
-//}
 
 /* USER CODE END 4 */
 

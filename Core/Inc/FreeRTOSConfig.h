@@ -44,6 +44,7 @@
  *----------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
+//#define configUSE_STATS_FORMATTING_FUNCTIONS 1
 /* Section where include file can be added */
 /* USER CODE END Includes */
 

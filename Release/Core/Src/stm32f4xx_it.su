@@ -1,0 +1,17 @@
+../Core/Src/stm32f4xx_it.c:77:6:NMI_Handler	0	static
+../Core/Src/stm32f4xx_it.c:92:6:HardFault_Handler	0	static
+../Core/Src/stm32f4xx_it.c:107:6:MemManage_Handler	0	static
+../Core/Src/stm32f4xx_it.c:122:6:BusFault_Handler	0	static
+../Core/Src/stm32f4xx_it.c:137:6:UsageFault_Handler	0	static
+../Core/Src/stm32f4xx_it.c:152:6:DebugMon_Handler	0	static
+../Core/Src/stm32f4xx_it.c:172:6:DMA1_Stream0_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:186:6:DMA1_Stream1_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:200:6:DMA1_Stream2_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:214:6:DMA1_Stream5_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:228:6:EXTI9_5_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:242:6:TIM1_UP_TIM10_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:256:6:I2C1_EV_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:270:6:I2C1_ER_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:284:6:OTG_FS_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:298:6:I2C3_EV_IRQHandler	0	static
+../Core/Src/stm32f4xx_it.c:312:6:I2C3_ER_IRQHandler	0	static
