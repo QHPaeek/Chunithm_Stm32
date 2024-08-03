@@ -187,9 +187,19 @@ void StartDefaultTask(void *argument)
 	osDelay(5);
 	uint8_t chksum = 0xff+0x01+0x20;
 	key_scan();
+	uint8_t Last_raw_key_value[32] = {0};
 	for(uint8_t i = 0 ;i<32;i++)
 	{
-
+		//对中央接缝处4个按键做防误触发滤波。误触发的表现是突然从0跳变至255且不持续，只能读到一次。
+		if(((i == 0) || (i == 1) || (i == 30) || (i == 31)))
+		{
+			if(Last_raw_key_value[i] == 0 && key_status[i] == 0xff){
+				Last_raw_key_value[i] = 0xff;
+				key_status[i] = 0;
+			}else{
+				Last_raw_key_value[i] = key_status[i];
+			}
+		}
 		if(key_status[i] < 64){
 			key_status[i] = 0;
 		}else if(key_status[i] >192){
@@ -255,7 +265,7 @@ void StartTask02(void *argument)
 	uint16_t adcValue[6] = {0};
 	uint16_t last_adcValue[6] = {0};
 	//uint32_t slope_threshold = 150;
-	uint16_t slope_slide_threshold = 500;
+	uint16_t slope_slide_threshold = 300;
 	int slope[6] = {0};
 	int Last_slope[6] = {0};
 	uint8_t slope_status[6] = {0};
@@ -299,9 +309,9 @@ void StartTask02(void *argument)
 			slope_accumulator[i] += slope[i];
 		}
 
-		if(Last_slope[i] > 0 && slope[i] <= 0){
+		if(slope_accumulator[i] > 0 && slope[i] <= 20){
 			slope_accumulator[i] = 0;
-		}else if(Last_slope[i] < 0 && slope[i] >= 0){
+		}else if(slope_accumulator[i] < 0 && slope[i] >= 20){
 			slope_accumulator[i] = 0;
 		}
 
@@ -436,15 +446,15 @@ void StartTask04(void *argument)
 		    {
 		    	for(uint8_t j = 0 ;j <8;j++)
 		    	{
-		    		RGB_data_DMA_buffer[(i*3)*8+j+224] = (RGB_data_raw[4+i*3+2] & (1<<j)) ? 90:30;
+		    		RGB_data_DMA_buffer[(i*3)*8+j+224] = (gamma8[RGB_data_raw[4+i*3+2]] & (1<<j)) ? 90:30;
 		    	}
 		    	for(uint8_t j = 0 ;j <8;j++)
 		    	{
-		    		RGB_data_DMA_buffer[(i*3+1)*8+j+224] = (RGB_data_raw[4+i*3+1] & (1<<j)) ? 90:30;
+		    		RGB_data_DMA_buffer[(i*3+1)*8+j+224] = (gamma8[RGB_data_raw[4+i*3+1]] & (1<<j)) ? 90:30;
 		    	}
 		    	for(uint8_t j = 0 ;j <8;j++)
 		    	{
-		    		RGB_data_DMA_buffer[(i*3+2)*8+j+224] = (RGB_data_raw[4+i*3] & (1<<j)) ? 90:30;
+		    		RGB_data_DMA_buffer[(i*3+2)*8+j+224] = (gamma8[RGB_data_raw[4+i*3]] & (1<<j)) ? 90:30;
 		    	}
 		    }
 		}
@@ -482,7 +492,7 @@ void StartTask04(void *argument)
 	    //�????启DMA传输刷灯
 		HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t *)RGB_data_DMA_buffer, 970);
 		HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_3, (uint32_t *)RGB_Air_DMA_buffer, 592);
-		osDelay(50);
+		osDelay(5);
 	  }
   /* USER CODE END StartTask04 */
 }
