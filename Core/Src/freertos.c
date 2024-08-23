@@ -65,7 +65,7 @@
 	uint8_t Air_scan_flag = 0;
 	uint8_t Air_CMD[5] = {0xff,0x05,0x01,0x00,0x00};
 	uint8_t led_count = 255;
-	//LED状态计数，每个刷灯周期-1
+	//LED状�?�计数，每个刷灯周期-1
 	uint8_t system_status = 0;
 	//system_status:
 	//0:ground-keyboard air-none
@@ -106,6 +106,15 @@ const osThreadAttr_t Task04_attributes = {
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
+void  delay_us(uint16_t us)
+{
+	__HAL_TIM_SetCounter(&htim4,0);
+	__HAL_TIM_ENABLE(&htim4);
+
+	while(__HAL_TIM_GetCounter(&htim4)<us);
+
+	__HAL_TIM_DISABLE(&htim4);
+}
 
 /* USER CODE END FunctionPrototypes */
 
@@ -182,18 +191,18 @@ void StartDefaultTask(void *argument)
 	uint8_t slider_key_tx_buf2[38] = {0xFF,0x01,0x21,0x00,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
 			,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
 			,0x00,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0xE0 ,0x00};
+	uint8_t Last_raw_key_value[32] = {0};
   while(1)
   {
 	osDelay(5);
 	uint8_t chksum = 0xff+0x01+0x20;
 	key_scan();
-	uint8_t Last_raw_key_value[32] = {0};
 	for(uint8_t i = 0 ;i<32;i++)
 	{
-		//对中央接缝处4个按键做防误触发滤波。误触发的表现是突然从0跳变至255且不持续，只能读到一次。
-		if(((i == 0) || (i == 1) || (i == 30) || (i == 31)))
+		//对中央接缝处4个按键做防误触发滤波。误触发的表现是突然�??0跳变�??255且不持续，只能读到一次�??
+		if(((i == 0) || (i == 1) || (i == 20) || (i == 21)))
 		{
-			if(Last_raw_key_value[i] == 0 && key_status[i] == 0xff){
+			if((Last_raw_key_value[i] == 0) && (key_status[i] == 0xff)){
 				Last_raw_key_value[i] = 0xff;
 				key_status[i] = 0;
 			}else{
@@ -265,17 +274,17 @@ void StartTask02(void *argument)
 	uint16_t adcValue[6] = {0};
 	uint16_t last_adcValue[6] = {0};
 	//uint32_t slope_threshold = 150;
-	uint16_t slope_slide_threshold = 300;
+	uint16_t slope_slide_threshold = 200;
 	int slope[6] = {0};
 	int Last_slope[6] = {0};
 	uint8_t slope_status[6] = {0};
 	int slope_accumulator[6] = {0};
 	for (uint8_t i = 0; i < 6; i++){
-		//�?????74hc238写入3bit选择点亮哪一颗灯
+		//�???????74hc238写入3bit选择点亮哪一颗灯
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
-		//stm32的ADC会自动循�????
+		//stm32的ADC会自动循�??????
 		osDelay(1);
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1);
@@ -284,14 +293,15 @@ void StartTask02(void *argument)
   while(1)
   {
 	for (uint8_t i = 0; i < 6; i++){
-		//�?????74hc238写入3bit选择点亮哪一颗灯
+		//�???????74hc238写入3bit选择点亮哪一颗灯
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
-		//stm32的ADC会自动循�????
-		osDelay(1);
-		HAL_ADC_Start(&hadc1);
+		//stm32的ADC会自动循�??????
 		last_adcValue[i] = adcValue[i];
+		Last_slope[i] = slope[i];
+		delay_us(100);
+		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1);
 		adcValue[i] = HAL_ADC_GetValue(&hadc1);
 //		if(i == 5){
@@ -300,7 +310,6 @@ void StartTask02(void *argument)
 //			uint8_t len_adc = strlen(adc_char);
 //			CDC_Transmit(0,adc_char,len_adc);
 //		}
-		Last_slope[i] = slope[i];
 		slope[i] = adcValue[i] - last_adcValue[i];
 
 		if(slope[i] > 0){
@@ -309,10 +318,10 @@ void StartTask02(void *argument)
 			slope_accumulator[i] += slope[i];
 		}
 
-		if(slope_accumulator[i] > 0 && slope[i] <= 20){
-			slope_accumulator[i] = 0;
-		}else if(slope_accumulator[i] < 0 && slope[i] >= 20){
-			slope_accumulator[i] = 0;
+		if(slope_accumulator[i] > 0 && slope[i] <= 50){
+			slope_accumulator[i] = slope[i];
+		}else if(slope_accumulator[i] < 0 && slope[i] >= 50){
+			slope_accumulator[i] = slope[i];
 		}
 
 		if(slope_accumulator[i] > slope_slide_threshold){
@@ -404,8 +413,8 @@ void StartTask03(void *argument)
 void StartTask04(void *argument)
 {
   /* USER CODE BEGIN StartTask04 */
-	//pwm计数�????120重载，设置为120即一直低电平，设置为90表示ws2812的高，设置为30表示ws2812的低
-	//ws2812传输数据顺序要求是GRB,游戏下发数据为RGB,�????要对调顺�????
+	//pwm计数�??????120重载，设置为120即一直低电平，设置为90表示ws2812的高，设置为30表示ws2812的低
+	//ws2812传输数据顺序要求是GRB,游戏下发数据为RGB,�??????要对调顺�??????
 	RGB_data_DMA_buffer[969] = 120;
 	RGB_Air_DMA_buffer[591] = 120;
 	for(;;){
@@ -413,7 +422,7 @@ void StartTask04(void *argument)
 			system_status = 0;
 			slider_scan_flag = 0;
 			Air_scan_flag = 0;
-			//减到0：没有接到指令，说明游戏已经退出，切换到模式0
+			//减到0：没有接到指令，说明游戏已经�??出，切换到模�??0
 		}else{
 			led_count--;
 		}
@@ -489,10 +498,10 @@ void StartTask04(void *argument)
 	    		}
 	    	}
 	    }
-	    //�????启DMA传输刷灯
+	    //�??????启DMA传输刷灯
 		HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_1, (uint32_t *)RGB_data_DMA_buffer, 970);
 		HAL_TIM_PWM_Start_DMA(&htim2, TIM_CHANNEL_3, (uint32_t *)RGB_Air_DMA_buffer, 592);
-		osDelay(5);
+		osDelay(10);
 	  }
   /* USER CODE END StartTask04 */
 }

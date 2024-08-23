@@ -27,7 +27,7 @@
 
 /**
 	MiddleWare name : AL94.I-CUBE-USBD-COMPOSITE.1.0.3
-	MiddleWare fileName : ./AL94.I-CUBE-USBD-COMPOSITE_conf.h
+	MiddleWare fileName : AL94.I-CUBE-USBD-COMPOSITE_conf.h
 	MiddleWare version :
 */
 /*---------- _USBD_USE_HS  -----------*/
