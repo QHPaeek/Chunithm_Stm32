@@ -115,7 +115,13 @@ void  delay_us(uint16_t us)
 
 	__HAL_TIM_DISABLE(&htim4);
 }
-
+uint8_t find_value(int8_t position){
+	if((position < 0) && (position > 32)){
+		return 0;
+	}else{
+		return key_status[position];
+	}
+}
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -185,7 +191,7 @@ void StartDefaultTask(void *argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-	osDelay(8);
+	osDelay(20);
 	Sensor_Cfg(&hi2c1);
 	Sensor_Cfg(&hi2c3);
 	uint8_t slider_key_tx_buf2[38] = {0xFF,0x01,0x21,0x00,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00
@@ -194,7 +200,7 @@ void StartDefaultTask(void *argument)
 	uint8_t Last_raw_key_value[32] = {0};
   while(1)
   {
-	osDelay(5);
+	osDelay(17);
 	uint8_t chksum = 0xff+0x01+0x20;
 	key_scan();
 	for(uint8_t i = 0 ;i<32;i++)
@@ -202,13 +208,53 @@ void StartDefaultTask(void *argument)
 		//对中央接缝处4个按键做防误触发滤波。误触发的表现是突然�??0跳变�??255且不持续，只能读到一次�??
 		if(((i == 0) || (i == 1) || (i == 20) || (i == 21)))
 		{
-			if((Last_raw_key_value[i] == 0) && (key_status[i] == 0xff)){
-				Last_raw_key_value[i] = 0xff;
-				key_status[i] = 0;
+//			if((Last_raw_key_value[i] == 0) && (key_status[i] == 0xff)){
+//				Last_raw_key_value[i] = 0xff;
+//				key_status[i] = 0;
+//			}
+			if((Last_raw_key_value[i] == 0) && key_status[i]){
+				if(!(find_value(i+2) || find_value(i-2) || find_value(i+3)|| find_value(i+1)|| find_value(i-1))){
+					Last_raw_key_value[i] = key_status[i];
+					key_status[i] = 0;
+				}
 			}else{
 				Last_raw_key_value[i] = key_status[i];
 			}
 		}
+
+	}
+	for(uint8_t i = 0 ;i<32;i++)
+	{
+		//接缝触发优化。有且仅有相邻两个按键被触发时增加信号强度
+		uint8_t ret = 0;
+		if((key_status[i] > 0) && (key_status[i] < 200)){
+			if((find_value(i+2) > 10) && (find_value(i+2) < 200) && (find_value(i+3) < 20)){
+				ret ++;
+			}
+			if((find_value(i-2) > 10) && (find_value(i-2) < 200) && (find_value(i-3) < 20)){
+				ret ++;
+			}
+			if(ret == 1){
+				key_status[i] = 254;
+			}
+		}
+	}
+	for(uint8_t i = 0 ;i<16;i++)
+	{
+		//双排键触发优化。下排按键触发时减弱上排按键的读数，避免吃叠键。
+		if(key_status[2*i] && key_status[2*i+1]){
+			if(key_status[2*i] > key_status[2*i+1]){
+				key_status[2*i+1] -= 60;
+			}else if(key_status[2*i] < key_status[2*i+1]){
+				key_status[2*i] -= 60;
+			}else{
+				key_status[2*i+1] -= 60;
+			}
+		}
+	}
+	for(uint8_t i = 0 ;i<32;i++)
+	{
+		//阈值重映射，取64~192区间数值乘2得到新的0~255区间，小于64全部为0，大于192全部为255
 		if(key_status[i] < 64){
 			key_status[i] = 0;
 		}else if(key_status[i] >192){
@@ -270,53 +316,80 @@ void StartDefaultTask(void *argument)
 void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
-	osDelay(2000);
+	osDelay(200);
 	uint16_t adcValue[6] = {0};
 	uint16_t last_adcValue[6] = {0};
 	//uint32_t slope_threshold = 150;
-	uint16_t slope_slide_threshold = 200;
+	uint16_t slope_slide_threshold[6] = {0};
 	int slope[6] = {0};
-	int Last_slope[6] = {0};
-	uint8_t slope_status[6] = {0};
+	//int Last_slope[6] = {0};
+	uint16_t value_threshold[6] = {0};
+	uint16_t min_value[6] = {65535};
+	uint16_t max_value[6] = {0};
 	int slope_accumulator[6] = {0};
-	for (uint8_t i = 0; i < 6; i++){
-		//�???????74hc238写入3bit选择点亮哪一颗灯
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
-		//stm32的ADC会自动循�??????
-		osDelay(1);
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 1);
-		adcValue[i] = HAL_ADC_GetValue(&hadc1);
+	for(uint8_t j=0;j<10;j++){
+		for (uint8_t i = 0; i < 6; i++){
+			//�???????74hc238写入3bit选择点亮哪一颗灯
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
+			//stm32的ADC会自动循�??????
+			delay_us(100);
+			HAL_ADC_Start(&hadc1);
+			HAL_ADC_PollForConversion(&hadc1, 1);
+			adcValue[i] = HAL_ADC_GetValue(&hadc1);
+			if(min_value[i] > adcValue[i]){
+				min_value[i] = adcValue[i];
+			}
+			if(max_value[i] < adcValue[i]){
+				max_value[i] = adcValue[i];
+			}
+		}
+		osDelay(10);
+		for (uint8_t i = 0; i < 6; i++){
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(7&0b00000001)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(7&0b00000010)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(7&0b00000100)? 1 : 0);
+			delay_us(100);
+			HAL_ADC_Start(&hadc1);
+			HAL_ADC_PollForConversion(&hadc1, 1);
+			adcValue[i] = HAL_ADC_GetValue(&hadc1);
+			if(min_value[i] > adcValue[i]){
+				min_value[i] = adcValue[i];
+			}
+			if(max_value[i] < adcValue[i]){
+				max_value[i] = adcValue[i];
+			}
+		}
+		osDelay(10);
 	}
   while(1)
   {
 	for (uint8_t i = 0; i < 6; i++){
-		//�???????74hc238写入3bit选择点亮哪一颗灯
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
 		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
-		//stm32的ADC会自动循�??????
 		last_adcValue[i] = adcValue[i];
-		Last_slope[i] = slope[i];
 		delay_us(100);
 		HAL_ADC_Start(&hadc1);
 		HAL_ADC_PollForConversion(&hadc1, 1);
 		adcValue[i] = HAL_ADC_GetValue(&hadc1);
+		if(min_value[i] > adcValue[i]){
+			min_value[i] = adcValue[i];
+		}
+		if(max_value[i] < adcValue[i]){
+			max_value[i] = adcValue[i];
+		}
 //		if(i == 5){
 //			uint8_t adc_char[10] = {0};
 //			sprintf((char *)adc_char,"%ld\n",adcValue[i]);
 //			uint8_t len_adc = strlen(adc_char);
 //			CDC_Transmit(0,adc_char,len_adc);
 //		}
+		slope_slide_threshold[i] = (max_value[i] - min_value[i])/5;
+		value_threshold[i] = (max_value[i] - min_value[i])/10;
 		slope[i] = adcValue[i] - last_adcValue[i];
-
-		if(slope[i] > 0){
-			slope_accumulator[i] += slope[i];
-		}else if(slope[i] < 0){
-			slope_accumulator[i] += slope[i];
-		}
+		slope_accumulator[i] += slope[i];
 
 		if(slope_accumulator[i] > 0 && slope[i] <= 50){
 			slope_accumulator[i] = slope[i];
@@ -324,18 +397,23 @@ void StartTask02(void *argument)
 			slope_accumulator[i] = slope[i];
 		}
 
-		if(slope_accumulator[i] > slope_slide_threshold){
+		if((slope_accumulator[i] > slope_slide_threshold[i]) || (adcValue[i] > max_value[i] - value_threshold[i])){
 			Air_key_buffer = Air_key_buffer | (1 << i);
-			//slope_accumulator[i] = 0;
-		}else if(slope_accumulator[i] < (0 - slope_slide_threshold)){
+			if(adcValue[i] > max_value[i] - value_threshold[i]){
+				slope_accumulator[i] = 0;
+			}
+		}
+		if((slope_accumulator[i] < (0 - slope_slide_threshold[i])) || (adcValue[i] < min_value[i] + value_threshold[i])){
 			Air_key_buffer = Air_key_buffer & ~(1 << i);
-			//slope_accumulator[i] = 0;
+			if(adcValue[i] < min_value[i] + value_threshold[i]){
+				slope_accumulator[i] = 0;
+			}
 		}
 	}
 	//指令打包
 	Air_CMD[3] = Air_key_buffer;
 	Air_CMD[4] = 0 - (Air_key_buffer + 0xff + 0x05 + 0x01);
-	osDelay(2);
+	osDelay(5);
   }
   /* USER CODE END StartTask02 */
 }
