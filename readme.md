@@ -6,9 +6,7 @@
 
 1.将\`F411_chunithm_15.6\Release\F411_chunithm_15.6.bin`使用STM32CubeProgrammer通过USB_DFU模式或者STlink刷入设备中。
 
-2.重新插拔设备，将弹出的USB串行设备分配为COM1
-
-~~3.编辑Segatool.ini使其停止Hook串口。~~
+2.重新插拔设备，~~将弹出的USB串行设备分配为COM1~~。由于affineIO实现了使用VIDPID自动查找串口号的功能，因此可以直接跳转下一步。
 
 3.编辑Segatool.ini，使用affine.dll IO文件连接游戏。
 
@@ -24,7 +22,7 @@
 
 **关于硬件：**[chunithm_affine](https://oshwhub.com/remige/chunithm_affine)
 
-本设计的硬件尚未完善，目前只是能运行的DEMO版本。后续将持续不断更新PCB设计以及外壳。
+请加入企鹅群531883107获取群文件中PCB设计文档，或者自行根据工程中引脚分布设计外部电路。
 
 **关于传感器：**
 
@@ -32,14 +30,8 @@
 
 **关于主控：**
 
-目前是使用的STM32F411CEU6开发板，通过邮票孔贴片在底板上。目前也有计划支持其他STM32 MCU，例如STM32H750VBT6。
+目前是使用的STM32F411CEU6开发板。
 
 **已知的BUG：**
 
 1.AL94_USB_Composite库在生成代码时并不会保护USER CODE区域中的用户代码，而本程序需要在USB接收回调函数中实现功能。因此请手动保护`\F411_chunithm_15.6\Middlewares\Third_Party\AL94_USB_Composite\COMPOSITE\App`目录下的`usbd_cdc_acm_if.c`以及`usbd_cdc_acm_if.h`两个文件。
-
-~~2.目前的串口逻辑还存在问题，进入游戏会提示ERROR 3100，但是报错后按F1进入TEST后再退出就可以正常使用。~~
-
-~~3.灯光的颜色是反的。~~
-
-~~4.左侧11个灯的刷新频率可能较低。（受USB传输包长限制）~~
