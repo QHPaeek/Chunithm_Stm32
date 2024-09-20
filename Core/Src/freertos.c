@@ -228,10 +228,10 @@ void StartDefaultTask(void *argument)
 		//接缝触发优化。有且仅有相邻两个按键被触发时增加信号强度
 		uint8_t ret = 0;
 		if((key_status[i] > 0) && (key_status[i] < 200)){
-			if((find_value(i+2) > 10) && (find_value(i+2) < 200) && (find_value(i+3) < 20)){
+			if((find_value(i+2)) && (!find_value(i+3))){
 				ret ++;
 			}
-			if((find_value(i-2) > 10) && (find_value(i-2) < 200) && (find_value(i-3) < 20)){
+			if((find_value(i-2)) && (!find_value(i-3))){
 				ret ++;
 			}
 			if(ret == 1){
@@ -242,12 +242,8 @@ void StartDefaultTask(void *argument)
 	for(uint8_t i = 0 ;i<16;i++)
 	{
 		//双排键触发优化。下排按键触发时减弱上排按键的读数，避免吃叠键。
-		if(key_status[2*i] && key_status[2*i+1]){
+		if((key_status[2*i] > 74) && (key_status[2*i+1] > 74)){
 			if(key_status[2*i] > key_status[2*i+1]){
-				key_status[2*i+1] -= 60;
-			}else if(key_status[2*i] < key_status[2*i+1]){
-				key_status[2*i] -= 60;
-			}else{
 				key_status[2*i+1] -= 60;
 			}
 		}
@@ -262,6 +258,7 @@ void StartDefaultTask(void *argument)
 		}else{
 			key_status[i] = (key_status[i] - 64) * 2;
 		}
+		//0xFD和0xFF替换为0xFE,避免转义
 		if(key_status[i] == 0xfd && key_status[i] == 0xff)
 		{
 			key_status[i] = 0xfe;
@@ -317,17 +314,21 @@ void StartTask02(void *argument)
 {
   /* USER CODE BEGIN StartTask02 */
 	osDelay(200);
-	uint16_t adcValue[6] = {0};
-	uint16_t last_adcValue[6] = {0};
-	//uint32_t slope_threshold = 150;
+	uint16_t adcValue[6][3] = {0};
+	uint16_t last_mean_adcValue[6] = {0};
+//	uint32_t slope_threshold = 150;
 	uint16_t slope_slide_threshold[6] = {0};
-	int slope[6] = {0};
-	//int Last_slope[6] = {0};
 	uint16_t value_threshold[6] = {0};
+	int slope[6] = {0};
+	uint8_t slow_slope_flag[6] = {0};
+//	int Last_slope[6] = {0};
+	uint16_t mean_value[6] = {0};
+	uint16_t history_mean_value[6] = {0};
 	uint16_t min_value[6] = {65535};
 	uint16_t max_value[6] = {0};
 	int slope_accumulator[6] = {0};
-	for(uint8_t j=0;j<10;j++){
+	int slope_accumulator_n[6] = {0};
+	for(uint8_t j=0;j<3;j++){
 		for (uint8_t i = 0; i < 6; i++){
 			//�???????74hc238写入3bit选择点亮哪一颗灯
 			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
@@ -337,82 +338,128 @@ void StartTask02(void *argument)
 			delay_us(100);
 			HAL_ADC_Start(&hadc1);
 			HAL_ADC_PollForConversion(&hadc1, 1);
-			adcValue[i] = HAL_ADC_GetValue(&hadc1);
-			if(min_value[i] > adcValue[i]){
-				min_value[i] = adcValue[i];
-			}
-			if(max_value[i] < adcValue[i]){
-				max_value[i] = adcValue[i];
-			}
+			adcValue[i][j] = HAL_ADC_GetValue(&hadc1);
 		}
 		osDelay(10);
+	}
+	for(uint8_t i = 0;i < 6;i++){
+		history_mean_value[i] = adcValue[i][0]/3 + adcValue[i][1]/3 + adcValue[i][2]/3;
+	}
+//	for(uint8_t j=0;j<3;j++){
+//		for (uint8_t i = 0; i < 6; i++){
+//			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,((i+1)&0b00000001)? 1 : 0);
+//			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,((i+1)&0b00000010)? 1 : 0);
+//			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,((i+1)&0b00000100)? 1 : 0);
+//			delay_us(100);
+//			HAL_ADC_Start(&hadc1);
+//			HAL_ADC_PollForConversion(&hadc1, 1);
+//			adcValue[i][j] = HAL_ADC_GetValue(&hadc1);
+//		}
+//		osDelay(10);
+//	}
+//	for(uint8_t i = 0;i < 6;i++){
+//		mean_value[i] = adcValue[i][0]/3 + adcValue[i][1]/3 + adcValue[i][2]/3;
+//		if(min_value[i] > mean_value[i]){
+//			min_value[i] = mean_value[i];
+//		}
+//		if(max_value[i] < mean_value[i]){
+//			max_value[i] = mean_value[i];
+//		}
+//	}
+  while(1)
+  {
+	for(uint8_t j = 0; j < 3;j++){
+		delay_us(100);
 		for (uint8_t i = 0; i < 6; i++){
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(7&0b00000001)? 1 : 0);
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(7&0b00000010)? 1 : 0);
-			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(7&0b00000100)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
+			HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
+			//last_adcValue[i] = adcValue[i];
 			delay_us(100);
 			HAL_ADC_Start(&hadc1);
 			HAL_ADC_PollForConversion(&hadc1, 1);
-			adcValue[i] = HAL_ADC_GetValue(&hadc1);
-			if(min_value[i] > adcValue[i]){
-				min_value[i] = adcValue[i];
-			}
-			if(max_value[i] < adcValue[i]){
-				max_value[i] = adcValue[i];
-			}
+			adcValue[i][j] = HAL_ADC_GetValue(&hadc1);
 		}
-		osDelay(10);
 	}
-  while(1)
-  {
-	for (uint8_t i = 0; i < 6; i++){
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_15,(i&0b00000001)? 1 : 0);
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_14,(i&0b00000010)? 1 : 0);
-		HAL_GPIO_WritePin(GPIOB,GPIO_PIN_13,(i&0b00000100)? 1 : 0);
-		last_adcValue[i] = adcValue[i];
-		delay_us(100);
-		HAL_ADC_Start(&hadc1);
-		HAL_ADC_PollForConversion(&hadc1, 1);
-		adcValue[i] = HAL_ADC_GetValue(&hadc1);
-		if(min_value[i] > adcValue[i]){
-			min_value[i] = adcValue[i];
-		}
-		if(max_value[i] < adcValue[i]){
-			max_value[i] = adcValue[i];
-		}
-//		if(i == 5){
-//			uint8_t adc_char[10] = {0};
-//			sprintf((char *)adc_char,"%ld\n",adcValue[i]);
-//			uint8_t len_adc = strlen(adc_char);
-//			CDC_Transmit(0,adc_char,len_adc);
-//		}
-		slope_slide_threshold[i] = (max_value[i] - min_value[i])/5;
-		value_threshold[i] = (max_value[i] - min_value[i])/10;
-		slope[i] = adcValue[i] - last_adcValue[i];
-		slope_accumulator[i] += slope[i];
-
-		if(slope_accumulator[i] > 0 && slope[i] <= 50){
-			slope_accumulator[i] = slope[i];
-		}else if(slope_accumulator[i] < 0 && slope[i] >= 50){
-			slope_accumulator[i] = slope[i];
-		}
-
-		if((slope_accumulator[i] > slope_slide_threshold[i]) || (adcValue[i] > max_value[i] - value_threshold[i])){
+	for(uint8_t i = 0;i < 6;i++){
+//		last_mean_adcValue[i] = mean_value[i];
+		mean_value[i] = adcValue[i][0]/3 + adcValue[i][1]/3 + adcValue[i][2]/3;
+		if(mean_value[i] > (history_mean_value[i] + 300)){
 			Air_key_buffer = Air_key_buffer | (1 << i);
-			if(adcValue[i] > max_value[i] - value_threshold[i]){
-				slope_accumulator[i] = 0;
-			}
-		}
-		if((slope_accumulator[i] < (0 - slope_slide_threshold[i])) || (adcValue[i] < min_value[i] + value_threshold[i])){
+		}else{
 			Air_key_buffer = Air_key_buffer & ~(1 << i);
-			if(adcValue[i] < min_value[i] + value_threshold[i]){
-				slope_accumulator[i] = 0;
-			}
+			history_mean_value[i] = history_mean_value[i]/2 + mean_value[i]/2;
 		}
 	}
+//		if(min_value[i] > mean_value[i]){
+//			min_value[i] = mean_value[i];
+//		}
+//		if(max_value[i] < mean_value[i]){
+//			max_value[i] = mean_value[i];
+//		}
+////		if(i == 5){
+////			uint8_t adc_char[10] = {0};
+////			sprintf((char *)adc_char,"%ld\n",adcValue[i]);
+////			uint8_t len_adc = strlen(adc_char);
+////			CDC_Transmit(0,adc_char,len_adc);
+////		}
+//		slope_slide_threshold[i] = (max_value[i] - min_value[i])/4;
+//		value_threshold[i] = (max_value[i] - min_value[i])/7;
+//		slope[i] = mean_value[i] - last_mean_adcValue[i];
+////		if(slope[i] > 0){
+//			slope_accumulator[i] += slope[i];
+////		}else{
+////			slope_accumulator_n[i] += slope[i];
+////		}
+//
+//		if(slope[i] < 50 && slope[i] > -50){
+//			slow_slope_flag[i]++;
+//		}else{
+//			slow_slope_flag[i] = 0;
+//		}
+//		if(slow_slope_flag[i] > 10){
+//			//波形放缓，清空累积器
+//			slow_slope_flag[i] = 0;
+//			slope_accumulator[i] = 0;
+//			if(slope_accumulator[i] > 0){
+//				Air_key_buffer = Air_key_buffer | (1 << i);
+//			}else if(slope_accumulator[i] < 0){
+//				Air_key_buffer = Air_key_buffer & ~(1 << i);
+//			}
+//			continue;
+//			//slope_accumulator_n[i] = 0;
+//		}
+//
+//	//		if(slope_accumulator[i] > 0 && slope[i] <= 0){
+//	//			slope_accumulator[i] = slope[i];
+//	//		}else if(slope_accumulator[i] < 0 && slope[i] >= 0){
+//	//			slope_accumulator[i] = slope[i];
+//	//		}
+//		if((mean_value[i] > (max_value[i] - value_threshold[i])) || (mean_value[i] < (min_value[i] + value_threshold[i]))){
+//			//回到最大或最小值界限内，清空累积器
+//			slope_accumulator[i] = 0;
+//			//slope_accumulator_n[i] = 0;
+//		}
+//		if((slope_accumulator[i] > slope_slide_threshold[i]) || (mean_value[i] > max_value[i] - value_threshold[i])){
+//			Air_key_buffer = Air_key_buffer | (1 << i);
+//
+//		}
+//		if((slope_accumulator[i] < (0 - slope_slide_threshold[i])) || (mean_value[i] < min_value[i] + value_threshold[i])){
+//			Air_key_buffer = Air_key_buffer & ~(1 << i);
+//		}
+////		if((slope_accumulator_p[i] > slope_slide_threshold[i])){
+////			Air_key_buffer = Air_key_buffer | (1 << i);
+////
+////		}
+////		if((slope_accumulator_n[i] < (0 - slope_slide_threshold[i]))){
+////			Air_key_buffer = Air_key_buffer & ~(1 << i);
+////		}
+//	}
+
 	//指令打包
 	Air_CMD[3] = Air_key_buffer;
 	Air_CMD[4] = 0 - (Air_key_buffer + 0xff + 0x05 + 0x01);
+	CDC_Transmit(0, Air_CMD, 5);
 	osDelay(5);
   }
   /* USER CODE END StartTask02 */
