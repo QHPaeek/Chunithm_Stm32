@@ -34,16 +34,22 @@ void key_scan()
 	for(uint8_t i = 0;i<16;i++)
 	{
 		if(HAL_I2C_Mem_Read(&hi2c1,SENSOR_ADDR,KEY_ADDR[i],I2C_MEMADD_SIZE_8BIT,&mem_temp,1,100)== HAL_OK)
-			{
+		{
 			key_status[i] = mem_temp;
-			}
+		}
+//		else{
+//			key_status[i] = 255;
+//		}
 	}
 	for(uint8_t i = 0;i<16;i++)
 	{
 		if(HAL_I2C_Mem_Read(&hi2c3,SENSOR_ADDR,KEY_ADDR[i],I2C_MEMADD_SIZE_8BIT,&mem_temp,1,100)==HAL_OK)
-			{
+		{
 			key_status[i+16] = mem_temp;
-			}
+		}
+//		else{
+//			key_status[i] = 255;
+//		}
 	}
 }
 
@@ -64,15 +70,15 @@ void Sensor_Cfg(I2C_HandleTypeDef *hi2cx)
 	{
 		// 首先将配置数据和 CRC 值写入到 CY8CMBR3xxx 控制器寄存器内
 		while(HAL_I2C_Mem_Write(hi2cx,SENSOR_ADDR,0x00,I2C_MEMADD_SIZE_8BIT,CY8CMBR3116_configuration,128,100)!=HAL_OK);
-	//	uint8_t sensor_cmd = 0x03;//计算CRC的命令
-	//	while(HAL_I2C_Mem_Write(hi2cx,SENSOR_ADDR,CTRL_CMD,I2C_MEMADD_SIZE_8BIT,&sensor_cmd,1,100)!=HAL_OK);//发送命令以计算CRC
-	//	osDelay(500);
-	//	while(HAL_I2C_Mem_Read(hi2cx,SENSOR_ADDR,CALC_CRC,I2C_MEMADD_SIZE_8BIT,CRC_data,2,100)!=HAL_OK);	//器件对该寄存器映射中的配置数据进行 CRC 校验和，然后将结果存储在 CALC_CRC 寄存器中。再读取CALC_CRC值写入CFG_CRC寄存器。该指令仅用于测试和调试，并不适用在生产配置中。
-	//	osDelay(100);
-	//	while(1){
-	//		CDC_Transmit(0, CRC_data, 2);
-	//		osDelay(1000);
-	//	}
+		uint8_t sensor_cmd = 0x03;//计算CRC的命令
+		while(HAL_I2C_Mem_Write(hi2cx,SENSOR_ADDR,CTRL_CMD,I2C_MEMADD_SIZE_8BIT,&sensor_cmd,1,100)!=HAL_OK);//发送命令以计算CRC
+		osDelay(500);
+		while(HAL_I2C_Mem_Read(hi2cx,SENSOR_ADDR,CALC_CRC,I2C_MEMADD_SIZE_8BIT,CRC_data,2,100)!=HAL_OK);	//器件对该寄存器映射中的配置数据进行 CRC 校验和，然后将结果存储在 CALC_CRC 寄存器中。再读取CALC_CRC值写入CFG_CRC寄存器。该指令仅用于测试和调试，并不适用在生产配置中。
+		osDelay(100);
+//		while(1){
+//			CDC_Transmit(0, CRC_data, 2);
+//			osDelay(1000);
+//		}
 		while(HAL_I2C_Mem_Write(hi2cx,SENSOR_ADDR,CONFIG_CRC,I2C_MEMADD_SIZE_8BIT,CRC_data,2,100)!=HAL_OK);
 		// 将 CMD_OP_CODE 的数值 2 写入到CTRL_CMD (0x86)寄存器内后等待 220 ms，将配置数据保存到非易失性存储器内。
 		uint8_t CMD_OP_CODE = 2;
@@ -88,11 +94,11 @@ void Sensor_Cfg(I2C_HandleTypeDef *hi2cx)
 			}
 			else
 			{
-				while(1)
-				{
-					Sensor_Cfg(hi2cx);//重新尝试刷入
-					return;
-				}
+//				while(1)
+//				{
+//					Sensor_Cfg(hi2cx);//重新尝试刷入
+//					return;
+//				}
 			}
 		// 如果成功（CTRL_CMD_STATUS 寄存器的值为 0），将 CMD_OP_CODE 的数值 255 写入到 CTRL_CMD (0x86)寄存器内来发送复位指令。
 		// 如果失败（CTRL_CMD_STATUS 寄存器的值为 1），表示配置数据未被保存到非易失性存储器内。这时请读取 CTRL_CMD_ERR (0x89)寄存器，以了解保存配置数据到非易失性存储器内失败的原因。
